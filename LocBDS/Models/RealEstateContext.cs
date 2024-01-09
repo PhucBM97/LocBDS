@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using HoangLocRealEstate.ViewModels;
 
 namespace LocBDS.Models
 {
@@ -23,8 +22,8 @@ namespace LocBDS.Models
         public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; } = null!;
         public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; } = null!;
         public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; } = null!;
+        public virtual DbSet<Category> Categories { get; set; } = null!;
         public virtual DbSet<RealEstate> RealEstates { get; set; } = null!;
-        public virtual DbSet<Type> Types { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -125,48 +124,52 @@ namespace LocBDS.Models
                     .HasForeignKey(d => d.UserId);
             });
 
-            modelBuilder.Entity<RealEstate>(entity =>
+            modelBuilder.Entity<Category>(entity =>
             {
-                entity.ToTable("RealEstate");
-
-                entity.Property(e => e.Id).HasColumnName("ID");
-
-                entity.Property(e => e.Area).HasMaxLength(100);
-
-                entity.Property(e => e.CreatedDt)
-                    .HasColumnType("datetime")
-                    .HasColumnName("Created_dt");
-
-                entity.Property(e => e.Price).HasMaxLength(100);
-
-                entity.Property(e => e.TypeId).HasColumnName("TypeID");
-
-                entity.Property(e => e.UpdatedDt)
-                    .HasColumnType("datetime")
-                    .HasColumnName("Updated_dt");
-
-                entity.HasOne(d => d.Type)
-                    .WithMany(p => p.RealEstates)
-                    .HasForeignKey(d => d.TypeId)
-                    .HasConstraintName("FK_RealEstate_Type");
-            });
-
-            modelBuilder.Entity<Type>(entity =>
-            {
-                entity.ToTable("Type");
+                entity.ToTable("Category");
 
                 entity.Property(e => e.Id)
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
 
-                entity.Property(e => e.TypeName).HasMaxLength(200);
+                entity.Property(e => e.CategoryName).HasMaxLength(200);
+            });
+
+            modelBuilder.Entity<RealEstate>(entity =>
+            {
+                entity.ToTable("RealEstate");
+
+                entity.HasIndex(e => e.CategoryId, "IX_RealEstate_TypeID");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Address).HasMaxLength(200);
+
+                entity.Property(e => e.Area).HasMaxLength(100);
+
+                entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
+
+                entity.Property(e => e.CreatedDt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Created_dt");
+
+                entity.Property(e => e.Photo).IsUnicode(false);
+
+                entity.Property(e => e.Price).HasMaxLength(100);
+
+                entity.Property(e => e.UpdatedDt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("Updated_dt");
+
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.RealEstates)
+                    .HasForeignKey(d => d.CategoryId)
+                    .HasConstraintName("FK_RealEstate_Type");
             });
 
             OnModelCreatingPartial(modelBuilder);
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-
-        public DbSet<HoangLocRealEstate.ViewModels.RealEstateVM>? RealEstateVM { get; set; }
     }
 }

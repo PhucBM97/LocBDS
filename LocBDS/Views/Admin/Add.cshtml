@@ -1,0 +1,209 @@
+﻿@model LocBDS.Models.RealEstate
+
+@{
+    ViewData["Title"] = "Add";
+    var categoryValue = 1;
+}
+
+<h1>Add</h1>
+
+<h4>RealEstate</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Add" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label class="control-label">Loại đất</label>
+                <select id="category"  class="form-control" asp-items="ViewBag.TypeId">
+                    @foreach (var item in ViewData["Categories"] as List<Category>)
+                    {
+                        <option value="@categoryValue">@item.CategoryName</option>
+                        categoryValue++;
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Tiêu đề</label>
+                <input id="title" class="form-control" />
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">Giá</label>
+                <input id="price" class="form-control" />
+
+            </div>
+            <div class="form-group">
+                <label  class="control-label">Diện tích</label>
+                <input id="area" class="form-control" />
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">Mô tả</label>
+                <input id="description" class="form-control" />
+
+            </div>
+            <div class="form-group">
+                <label class="control-label"></label>
+
+@*                 <input type="file" id="imageInput" />
+                <input id="photo" asp-for="Photo" class="form-control" value="asdasdasd" /> *@
+
+                <input type="file" name="imageInput" id="inputImage" accept="image/*" />
+                
+                <textarea id="photo"></textarea>
+
+
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" onclick="AddRealEstate()">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+
+<script>
+
+    // $(document).ready(function () {
+    //     $('#chonHinh, #imgThumbnail').click(function () {
+    //         $('#inputFile').click();
+    //     });
+    //     $("#dialog-message").dialog({
+    //         modal: true,
+    //         buttons: {
+    //             Ok: function () {
+    //                 $(this).dialog("close");
+    //             }
+    //         }
+    //     });
+    // });
+    //$("#ngaykhoichieu").datepicker({
+    //    dateFormat: "yy-mm-dd",
+    //    onSelect: function (datetext) {
+    //        $('#ngaykhoichieu').val(datetext);
+    //    }
+    //});
+
+    // HTML input element chứa tệp tin hình ảnh
+    const inputElement = document.getElementById("inputImage");
+    const post = document.getElementById("photo");
+    post.textContent = "";
+
+
+    try {
+        // Khối mã mà bạn muốn thử nghiệm
+        // Xử lý sự kiện khi người dùng chọn tệp tin
+        inputElement.addEventListener("change", function (event) {
+            var file = event.target.files[0];
+
+            if (file) {
+                // Sử dụng FileReader để đọc tệp tin
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // e.target.result chứa dữ liệu Base64 của hình ảnh
+                    var base64Image = e.target.result;
+
+                    // Hiển thị dữ liệu Base64 hoặc làm điều gì đó khác với nó
+                    console.log("Base64 Image:", base64Image);
+                    post.textContent += base64Image
+                };
+
+                // Đọc tệp tin dưới dạng dữ liệu Base64
+                reader.readAsDataURL(file);
+            }
+        });
+        
+    } catch (error) {
+        // Khối mã xử lý lỗi
+        console.error("Đã xảy ra lỗi:", error.message);
+    } finally {
+        // (Tùy chọn) Khối mã sẽ được thực hiện sau cả khi try hoặc catch hoàn thành
+        console.log("Khối mã cuối cùng");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // const inputFile = document.getElementById("inputImage");
+
+    // const post = document.getElementById("photo");
+    // inputFile.addEventListener("change", function () {
+    //     const file = this.files[0];
+    //     if (file) {
+    //         const reader = new FileReader();
+    //         reader.addEventListener("load", function () {
+
+    //             var res = this.result.split(";base64,");
+    //             post.setAttribute("value", res[1]);
+    //         });
+    //         reader.readAsDataURL(file);
+    //     } else {
+
+    //         post.setAttribute("value", "");
+    //     }
+    // });
+
+
+    function AddRealEstate() {
+        var currentDate = new Date();
+
+        // Định dạng ngày giờ theo chuẩn SQL Server (ISO 8601)
+        var formattedDateTime = currentDate.toISOString().slice(0, 19).replace("T", " ");
+        console.log("Ngày giờ hiện tại (SQL Server format): " + formattedDateTime);
+
+        console.log("clickkkkkkkkkkkkkkkkkkkkkkkkkkk")
+        debugger
+        var reObj = {
+            CategoryId: $('#category').val(),
+            Title: $('#title').val(),
+            Price: $('#price').val(),
+            Area: $('#area').val(),
+            Description: formattedDateTime,
+            CreatedDt: $('#createdt').val(),
+            Photo: $('#photo').val()
+
+        }
+
+        console.log(reObj)
+
+        $(document).ready(function () {
+            $.ajax({
+                url: '/Admin/Add',
+                method: 'POST',
+                data: reObj,
+                success: function (res) {
+                    alert(res);
+                },
+                error: function (err) {
+                    alert(errormessage.responseText);
+                }
+            })
+        })
+    }
+
+</script>
+
+
+
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

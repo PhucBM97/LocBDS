@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using X.PagedList;
 
 namespace LocBDS.Controllers
 {
@@ -19,9 +20,11 @@ namespace LocBDS.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult Index()
+        public IActionResult Index(int? page)
         {
-            var model = _context.RealEstates.Include(p => p.Type)
+            int pageSize = 6;
+            int pageNumber = (page ?? 1);
+            var model = _context.RealEstates.Include(p => p.Category)
                                           .Select(p => new RealEstateVM
                                           {
                                               Id = p.Id,
@@ -29,21 +32,23 @@ namespace LocBDS.Controllers
                                               Price = p.Price,
                                               Area = p.Area,
                                               Description = p.Description,
-                                              TypeId = p.TypeId,
-                                              TypeName = p.Type.TypeName,
+                                              CategoryId = p.CategoryId,
+                                              TypeName = p.Category.CategoryName,
                                               CreatedDt = p.CreatedDt,
-                                              UpdatedDt = p.UpdatedDt
+                                              UpdatedDt = p.UpdatedDt,
+                                              Photo = p.Photo,
+                                              Address = p.Address
                                           })
                                           .OrderByDescending(p => p.CreatedDt)
                                           .ToList();
 
-            return View(model);
+            return View(model.ToPagedList(pageNumber, pageSize));
         }
 
         [AllowAnonymous]
         public IActionResult GetDetail(int id)
         {
-            var model = _context.RealEstates.Include(p => p.Type)
+            var model = _context.RealEstates.Include(p => p.Category)
                   .Select(p => new RealEstateVM
                   {
                       Id = p.Id,
@@ -51,10 +56,12 @@ namespace LocBDS.Controllers
                       Price = p.Price,
                       Area = p.Area,
                       Description = p.Description,
-                      TypeId = p.TypeId,
-                      TypeName = p.Type.TypeName,
+                      CategoryId = p.CategoryId,
+                      TypeName = p.Category.CategoryName,
                       CreatedDt = p.CreatedDt,
-                      UpdatedDt = p.UpdatedDt
+                      UpdatedDt = p.UpdatedDt,
+                      Photo = p.Photo,
+                      Address= p.Address
                   })
                   .FirstOrDefault(p => p.Id == id);
 
