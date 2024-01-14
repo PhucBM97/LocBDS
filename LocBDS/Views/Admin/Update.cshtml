@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Add";
     var categoryValue = 1;
+    var objUpdate = ViewData["RealEstate"] as RealEstate;
 }
 
 <h1>Add</h1>
@@ -11,56 +12,57 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form method="post" asp-action="Add" enctype="multipart/form-data">
+        <form method="post" asp-action="Update" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label class="control-label">Loại đất</label>
-                <select id="category" asp-for="CategoryId"  class="form-control" asp-items="ViewBag.TypeId">
+                <select id="category" asp-for="CategoryId" class="form-control" asp-items="ViewBag.TypeId">
                     @foreach (var item in ViewData["Categories"] as List<Category>)
                     {
-                        <option value="@categoryValue">@item.CategoryName</option>
+                        <option value="@categoryValue" selected=@(@categoryValue == objUpdate?.CategoryId)>@item.CategoryName</option>
+                        @* <option value="@categoryValue">@item.CategoryName</option> *@
                         categoryValue++;
                     }
                 </select>
             </div>
             <div class="form-group">
                 <label class="control-label">Tiêu đề</label>
-                <input id="title" asp-for="Title" class="form-control" />
+                <input id="title" asp-for="Title" value="@objUpdate?.Title" class="form-control" />
             </div>
             <div class="form-group">
                 <label class="control-label">Địa chỉ</label>
-                <input id="address" asp-for="Address" class="form-control" />
+                <input id="address" asp-for="Address" value="@objUpdate?.Address" class="form-control" />
             </div>
             <div class="form-group">
                 <label class="control-label">Giá</label>
-                <input id="price" asp-for="Price" class="form-control" />
+                <input id="price" asp-for="Price" value="@objUpdate?.Price" class="form-control" />
 
             </div>
             <div class="form-group">
-                <label  class="control-label">Diện tích</label>
-                <input id="area" asp-for="Area" class="form-control" />
+                <label class="control-label">Diện tích</label>
+                <input id="area" asp-for="Area" value="@objUpdate?.Area" class="form-control" />
 
             </div>
             <div class="form-group">
                 <label class="control-label">Mô tả</label>
-                <input id="description" asp-for="Description" class="form-control" />
+                <input id="description" asp-for="Description" value="@objUpdate?.Description" class="form-control" />
 
             </div>
             <div class="form-group">
                 <label class="control-label"></label>
 
-@*                 <input type="file" id="imageInput" />
+                @*                 <input type="file" id="imageInput" />
                 <input id="photo" asp-for="Photo" class="form-control" value="asdasdasd" /> *@
 
                 <input type="file" id="inputImage" accept="image/*" />
-                
+
                 <textarea id="photo" asp-for="Photo"></textarea>
 
 
             </div>
             <div class="form-group">
-                <button class="btn btn-primary" >Save</button>
+                <button class="btn btn-primary">Save</button>
             </div>
         </form>
     </div>
@@ -122,7 +124,7 @@
                 reader.readAsDataURL(file);
             }
         });
-        
+
     } catch (error) {
         // Khối mã xử lý lỗi
         console.error("Đã xảy ra lỗi:", error.message);
@@ -209,5 +211,7 @@
 
 @section Scripts {
 
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

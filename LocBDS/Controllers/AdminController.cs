@@ -17,7 +17,7 @@ namespace LocBDS.Controllers
         [Authorize]
         public IActionResult Index(int? page)
         {
-            int pageSize = 2;
+            int pageSize = 9;
             int pageNumber = (page ?? 1);
             var model = _context.RealEstates.Include(p => p.Category)
                                           .Select(p => new RealEstateVM
@@ -49,22 +49,49 @@ namespace LocBDS.Controllers
         [HttpPost]
         public IActionResult Add(RealEstate entity)
         {
-            if (!string.IsNullOrEmpty(entity.Photo))
+            entity.CreatedDt = DateTime.Now;
+            if(entity is not null)
             {
-                var base64 = entity.Photo.Split(",");
-                entity.Photo = base64[1];
+                if (!string.IsNullOrEmpty(entity.Photo))
+                {
+                    var base64 = entity.Photo.Split(",");
+                    entity.Photo = base64[1];
+                }
+                if (entity.CategoryId != 0 && entity.CategoryId != null)
+                {
+                    entity.CreatedDt = DateTime.Now;
+                    _context.RealEstates.Add(entity);
+                    _context.SaveChanges();
+                    return RedirectToAction("Index");
+                }
             }
-            if(entity.CategoryId != 0 && entity.CategoryId != null)
-            {
-                entity.CreatedDt = DateTime.Now;
-                _context.RealEstates.Add(entity);
-                _context.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View();
+            return RedirectToAction("Add");
         }
 
         [Authorize]
+        public IActionResult Update(int id)
+        {
+            if(id > 0)
+            {
+                var model = _context.RealEstates.FirstOrDefault(p => p.Id == id);
+
+                if (model is not null)
+                {
+                    ViewData["RealEstate"] = model;
+                    ViewData["Categories"] = _context.Categories.ToList();
+                    return View();
+                }
+                else
+                {
+                    return View();
+                }
+            }
+            else
+            {
+                return View();
+            }
+
+        }
         [HttpPost]
         public IActionResult Update(RealEstate entity)
         {
@@ -76,16 +103,15 @@ namespace LocBDS.Controllers
                 model.Title = entity.Title;
                 model.Area = entity.Area;
                 model.Description = entity.Description;
-                model.UpdatedDt = entity.UpdatedDt;
-                model.CreatedDt = entity.CreatedDt;
+                model.UpdatedDt = DateTime.Now;
                 model.CategoryId = entity.CategoryId;
                 model.Photo = entity.Photo;
                 model.Address = entity.Address;
                 _context.RealEstates.Update(model);
                 _context.SaveChanges();
-                return Redirect("/HomeController/Index");
+                return RedirectToAction("Index");
             }
-            return View();
+            return RedirectToAction("Update");
         }
 
         [Authorize]
