@@ -108,16 +108,19 @@ namespace LocBDS.Controllers
                     {
                         await file.CopyToAsync(fileStream);
                     }
+                    ViewBag.Message = "File uploaded successfully";
+                    ViewBag.FilePath = filePath;
                 }
-
-                ViewBag.Message = "File uploaded successfully";
-                ViewBag.FilePath = filePath;
+                else
+                {
+                    ViewBag.Message = "Filename is exist";
+                }
             }
             else
             {
                 ViewBag.Message = "You have not specified a file.";
             }
-            return RedirectToAction("Upload");
+            return View();
         }
 
 
